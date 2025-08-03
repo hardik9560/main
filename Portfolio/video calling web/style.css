@@ -1,0 +1,134 @@
+:root {
+    --bs-body-bg: #212529;
+    --bs-body-color: #f8f9fa;
+    --bs-border-color: #495057;
+}
+
+[data-bs-theme="light"] {
+    --bs-body-bg: #f8f9fa;
+    --bs-body-color: #212529;
+    --bs-border-color: #dee2e6;
+}
+
+body {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#videoContainer {
+    min-height: 0;
+}
+
+#localVideoContainer, #remoteVideoContainer {
+    min-height: 200px;
+}
+
+#chatMessages {
+    height: 0;
+    scrollbar-width: thin;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.local-message {
+    background-color: rgba(13, 110, 253, 0.2);
+    margin-left: auto;
+    border-top-right-radius: 0;
+}
+
+.remote-message {
+    background-color: rgba(108, 117, 125, 0.2);
+    margin-right: auto;
+    border-top-left-radius: 0;
+}
+
+.system-message {
+    background-color: rgba(25, 135, 84, 0.2);
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.mention {
+    background-color: rgba(255, 193, 7, 0.3);
+    padding: 0 2px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.wallet-balance {
+    font-weight: bold;
+    padding: 5px 10px;
+    background-color: rgba(13, 202, 240, 0.2);
+    border-radius: 5px;
+}
+
+.emoticon {
+    font-size: 1.5rem;
+    border: none;
+    background: none;
+    padding: 0;
+}
+
+.emoticon:hover {
+    transform: scale(1.2);
+}
+
+#tipGiftImage {
+    transition: transform 0.3s;
+}
+
+#tipGiftImage:hover {
+    transform: scale(1.2) rotate(10deg);
+}
+
+/* Animation for tips */
+@keyframes tipAnimation {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(3); opacity: 0; }
+}
+
+.tip-notification {
+    position: absolute;
+    font-size: 2rem;
+    animation: tipAnimation 2s forwards;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Sound effect indicator */
+.sound-effect {
+    display: inline-block;
+    animation: pulse 0.5s;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Stats modal */
+#statsModal .modal-body p {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .flex-lg-row {
+        flex-direction: column !important;
+    }
+    
+    #chatArea {
+        width: 100% !important;
+        height: 300px !important;
+    }
+}

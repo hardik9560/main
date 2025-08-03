@@ -1,0 +1,42 @@
+:root {
+    --text-color: #f8f9fa;
+    --bg-color: #212529;
+    --card-bg: #2c3034;
+    --border-color: #495057;
+    --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.chat-section {
+    background-color: var(--card-bg);
+    border-left-color: var(--border-color);
+}
+
+.message {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.message.sender {
+    background-color: rgba(13, 110, 253, 0.2);
+}
+
+.message.tip {
+    background-color: rgba(255, 193, 7, 0.2);
+}
+
+.message-time {
+    color: #adb5bd;
+}
+
+.tip-options {
+    background-color: #343a40;
+}
+
+.emoticons-container {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}

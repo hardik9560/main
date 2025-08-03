@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoWhisper - WebRTC Video Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container-fluid vh-100 p-0 d-flex flex-column">
+        <header class="bg-dark text-white p-3 d-flex justify-content-between align-items-center">
+            <h1 class="m-0">VideoWhisper</h1>
+            <div class="d-flex align-items-center">
+                <div class="me-3 wallet-balance">
+                    <i class="bi bi-wallet2"></i>
+                    <span id="walletBalance">0.00</span> $
+                </div>
+                <button id="themeToggle" class="btn btn-sm btn-outline-light me-2">
+                    <i class="bi bi-sun-fill"></i>
+                </button>
+                <button id="fullscreenToggle" class="btn btn-sm btn-outline-light">
+                    <i class="bi bi-fullscreen"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-grow-1 d-flex" style="overflow: hidden;">
+            <div class="flex-grow-1 d-flex flex-column p-3" style="position: relative;">
+                <div class="position-relative flex-grow-1 mb-3 border rounded overflow-hidden bg-black" id="localVideoContainer">
+                    <video id="localVideo" autoplay muted playsinline class="h-100 w-100"></video>
+                    <div class="position-absolute top-0 start-0 p-2 bg-dark bg-opacity-50 text-white">
+                        You <span id="localResolution"></span>
+                    </div>
+                    <div class="position-absolute top-0 end-0 p-2">
+                        <button id="muteAudio" class="btn btn-sm btn-outline-light me-1">
+                            <i class="bi bi-mic-fill"></i>
+                        </button>
+                        <button id="muteVideo" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-camera-video-fill"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="position-relative flex-grow-1 border rounded overflow-hidden bg-black" id="remoteVideoContainer">
+                    <video id="remoteVideo" autoplay playsinline class="h-100 w-100"></video>
+                    <div class="position-absolute top-0 start-0 p-2 bg-dark bg-opacity-50 text-white">
+                        Remote <span id="remoteResolution"></span>
+                    </div>
+                    <div class="position-absolute top-0 end-0 p-2">
+                        <button id="recordToggle" class="btn btn-sm btn-outline-light me-1">
+                            <i class="bi bi-record-circle"></i>
+                        </button>
+                        <button id="takeSnapshot" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-camera-fill"></i>
+                        </button>
+                    </div>
+                    <div class="position-absolute top-50 start-50 translate-middle text-center text-white" id="noVideoMessage" style="display: none;">
+                        <i class="bi bi-camera-video-off" style="font-size: 3rem;"></i>
+                        <p class="mt-2">Waiting for remote video...</p>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center mt-3">
+                    <button id="startCall" class="btn btn-success me-2" disabled>
+                        <i class="bi bi-telephone-outbound-fill me-1"></i> Start Call
+                    </button>
+                    <button id="endCall" class="btn btn-danger me-2" disabled>
+                        <i class="bi bi-telephone-x-fill me-1"></i> End Call
+                    </button>
+                    <button id="refreshCamera" class="btn btn-warning me-2" onclick="refreshCamera()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Refresh Camera
+                    </button>
+                    <div class="dropdown me-2">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="videoSettings" data-bs-toggle="dropdown">
+                            <i class="bi bi-gear-fill me-1"></i> Settings
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><h6 class="dropdown-header">Video Resolution</h6></li>
+                            <li><a class="dropdown-item resolution-option" href="#" data-value="640x480">640x480</a></li>
+                            <li><a class="dropdown-item resolution-option" href="#" data-value="1280x720">1280x720</a></li>
+                            <li><a class="dropdown-item resolution-option" href="#" data-value="1920x1080">1920x1080</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Bitrate (kbps)</h6></li>
+                            <li><a class="dropdown-item bitrate-option" href="#" data-value="500">500</a></li>
+                            <li><a class="dropdown-item bitrate-option" href="#" data-value="1000">1000</a></li>
+                            <li><a class="dropdown-item bitrate-option" href="#" data-value="2500">2500</a></li>
+                        </ul>
+                    </div>
+                    <button id="showStats" class="btn btn-info">
+                        <i class="bi bi-graph-up me-1"></i> Stats
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column border-start" style="width: 350px;">
+                <div class="p-3 border-bottom">
+                    <h5 class="m-0">Chat</h5>
+                </div>
+                <div class="flex-grow-1 p-3 overflow-auto" id="chatMessages">
+                    <div class="text-muted text-center">Start chatting when call begins...</div>
+                </div>
+                <div class="p-3 border-top">
+                    <div class="input-group mb-2">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" id="emoticonDropdown">
+                            <i class="bi bi-emoji-smile"></i>
+                        </button>
+                        <ul class="dropdown-menu" id="emoticonMenu">
+                            <li class="d-flex flex-wrap p-2" style="width: 250px;">
+                                <button class="btn btn-sm m-1 emoticon" data-emoji="😀">😀</button>
+                                <button class="btn btn-sm m-1 emoticon" data-emoji="😂">😂</button>
+                                <button class="btn btn-sm m-1 emoticon" data-emoji="😍">😍</button>
+                                <button class="btn btn-sm m-1 emoticon" data-emoji="😎">😎</button>
+                                <button class="btn btn-sm m-1 emoticon" data-emoji="👍">👍</button>
+                                <button class="btn btn-sm m-1 emoticon" data-emoji="❤️">❤️</button>
+                                <button class="btn btn-sm m-1 emoticon" data-emoji="🎉">🎉</button>
+                                <button class="btn btn-sm m-1 emoticon" data-emoji="🔥">🔥</button>
+                            </li>
+                        </ul>
+                        <input type="text" class="form-control" id="chatInput" placeholder="Type your message...">
+                        <button class="btn btn-primary" id="sendMessage">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-success dropdown-toggle" type="button" id="tipDropdown" data-bs-toggle="dropdown">
+                                <i class="bi bi-gift-fill"></i> Send Tip
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item tip-option" href="#" data-amount="1">$1 - Coffee ☕</a></li>
+                                <li><a class="dropdown-item tip-option" href="#" data-amount="5">$5 - Lunch 🍔</a></li>
+                                <li><a class="dropdown-item tip-option" href="#" data-amount="10">$10 - Dinner 🍽️</a></li>
+                                <li><a class="dropdown-item tip-option" href="#" data-amount="20">$20 - Gift 🎁</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <div class="px-3 py-2">
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" id="customTipAmount" placeholder="Custom" min="0.1" step="0.1">
+                                            <button class="btn btn-success" id="sendCustomTip">Send</button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-info dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown">
+                                <i class="bi bi-translate"></i> Language
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item language-option" href="#" data-lang="en">English</a></li>
+                                <li><a class="dropdown-item language-option" href="#" data-lang="es">Español</a></li>
+                                <li><a class="dropdown-item language-option" href="#" data-lang="fr">Français</a></li>
+                                <li><a class="dropdown-item language-option" href="#" data-lang="de">Deutsch</a></li>
+                                <li><a class="dropdown-item language-option" href="#" data-lang="ja">日本語</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/recordrtc@5.6.2/RecordRTC.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
